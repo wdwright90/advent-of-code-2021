@@ -22,13 +22,13 @@ impl Pos {
     }
 }
 
-pub(crate) fn main() {
+pub fn find_answer() -> i32 {
+    let mut sub_pos = Pos {
+        horizontal: 0,
+        depth: 0,
+        aim: 0,
+    };
     if let Ok(lines) = read_lines("inputs/input.txt") {
-        let mut sub_pos = Pos {
-            horizontal: 0,
-            depth: 0,
-            aim: 0,
-        };
         for line in lines {
             if let Ok(line) = line {
                 let mut split_lines = line.split_whitespace();
@@ -44,4 +44,5 @@ pub(crate) fn main() {
         }
         println!("The depth times horizontal is: {}", sub_pos.depth_horz_mult());
     }
+    sub_pos.depth_horz_mult()
 }
