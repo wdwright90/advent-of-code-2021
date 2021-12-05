@@ -26,7 +26,6 @@ impl Board {
         for i in 0..5 {
             let mut row_flag = true;
             let mut col_flag = true;
-            let mut diag_flag = true;
             for j in 0..5 {
                 if !self.board[i][j].1 {
                     row_flag = false
@@ -34,14 +33,8 @@ impl Board {
                 if !self.board[j][i].1 {
                     col_flag = false
                 }
-                if !self.board[j][j].1 {
-                    diag_flag = false
-                }
-                if !self.board[j][4 - j].1 {
-                    diag_flag = false
-                }
             }
-            bingo = row_flag || col_flag || diag_flag;
+            bingo = row_flag || col_flag;
             if bingo {
                 break;
             }
@@ -112,7 +105,6 @@ fn get_bingo_board(mut lines: &mut io::Lines<io::BufReader<File>>) -> Board {
             .map(|s| s.parse::<isize>().unwrap())
             .collect();
         for num in line {
-            println!("num is {}", num);
             row.push((num, false))
         }
         b.push(row);
@@ -128,19 +120,31 @@ pub fn answer_part_2() -> isize {
     if let Ok(mut lines) = read_lines("src/inputs/input_4.txt") {
         let guesses = get_bingo_guesses(&mut lines);
         let mut boards:Vec<Board> = Vec::new();
-        let mut board_count =
         while let Some(l)= lines.next() {
             boards.push(get_bingo_board(&mut lines));
         }
+        let mut board_count = boards.len();
         println!("All boards saved");
         'guessing_loop: for guess in guesses {
-            'marking_loop: for mut board in boards.iter_mut() {
+            println!("Next number called is: {}", guess);
+            let mut boards_2_remove:Vec<usize> = Vec::new();
+            let boards_left = boards.len();
+            'marking_loop: for (i, mut board) in boards.iter_mut().enumerate() {
+                println!("Marking next board at index: {}", i);
                 if board.mark_value(guess) {
-                    score = board.score(guess);
-                    println!("I found a winner with score: {}", score);
-                    break 'guessing_loop;
+                    if boards_left == 1 {
+                        score = board.score(guess);
+                        println!("I found the last winner with score: {}", score);
+                        break 'guessing_loop;
+                    }
+                    boards_2_remove.push(i);
                 }
             }
+            for ind in (0..boards_2_remove.len()).rev() {
+                println!("removed {}", boards_2_remove[ind]);
+                boards.remove(boards_2_remove[ind]);
+            }
+            boards_2_remove = Vec::new();
         }
     }
     return score;
